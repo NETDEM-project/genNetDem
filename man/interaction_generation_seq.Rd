@@ -10,7 +10,7 @@ interaction_generation_seq(
   ne = 1000,
   mgs = 2,
   style_gs = c("rep", "pois"),
-  par = 20,
+  pm = 20,
   float = 1e-05
 )
 }
@@ -25,7 +25,7 @@ interaction_generation_seq(
 
 \item{style_gs}{group size distribution. Currently either identical (style_gs=”rep”) or Poisson (style_gs=”pois”).}
 
-\item{par}{used in jpc to adjust social network connection strengths to probabilities of being sampled in the same group. Defaults to 20}
+\item{pm}{used in jpc to adjust social network connection strengths to probabilities of being sampled in the same group. Defaults to 20}
 
 \item{float}{used in jpc to provide a minimum probability of being sampled in the same group to allow all groups to be filled. Defaults to 0.0001}
 }

@@ -1,5 +1,0 @@
-"0",""
-"0","indiv_info<-data.frame(indiv_data$indivs)"
-"0","indiv_info<-indiv_info_gen(indiv_info,ii_tag=NULL,indiv_data=indiv_data,trait=""sex"",trait_type=""fac"",level_names=c(""M"",""F""))"
-"0","indiv_info<-indiv_info_gen(indiv_info[[1]],ii_tag=indiv_info[[2]],indiv_data,trait=""size"",trait_type=""cov"",x_dist=""norm"")"
-"0",""

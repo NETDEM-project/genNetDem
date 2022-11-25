@@ -1,1 +1,0 @@
-"0","plot(indiv_data$survival~tnet::clustering_local_w(as.tnet(network))[,2],ylab=""Survival Prob"",xlab=""Clustering coefficient"",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor(""black"",0.5))"

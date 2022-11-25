@@ -1,3 +1,0 @@
-"0",""
-"0","#Generate population"
-"0","pop_info<-population_generation_basic(n=100,ng=100)"

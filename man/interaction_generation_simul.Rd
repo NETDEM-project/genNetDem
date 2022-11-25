@@ -10,7 +10,7 @@ interaction_generation_simul(
   mean_group_size = 2,
   n_ts = 20,
   float = 1e-09,
-  par = 50,
+  pm = 50,
   pow = 4
 )
 }
@@ -25,7 +25,7 @@ interaction_generation_simul(
 
 \item{float}{used in jpc to provide a minimum probability of being sampled in the same group to allow all groups to be filled. Defaults to 0.000000001.}
 
-\item{par}{used in jpc to adjust social network connection strengths to probabilities of being sampled in the same group. Defaults to 50.}
+\item{pm}{used in jpc to adjust social network connection strengths to probabilities of being sampled in the same group. Defaults to 50.}
 
 \item{pow}{further adjustment of probabilities of being sampled in the same group based on social network connections. Defaults to 4.}
 }

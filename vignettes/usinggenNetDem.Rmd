@@ -123,14 +123,14 @@ We can then show how we can generate and sample social data over a single timest
 
 We first use the `interaction_generation_simul()` function to generate social data based on our underlying network. We choose a mean group size of 2 so that grouping events are small (many dyadic). and so so for 20 "behavioural" time-steps. We will expand on a behavioural time-step later in the code. We store the group-by-individual matrix as `gbi` and information on when groups were observed as `samp_wind`.
 
-Note that here we use the default values for `float`, `par` and `pow` and wouldn't actually need to include them in the function. However, we encourage you to be aware of their use in cases it is necessary to adjust them in your own code.
+Note that here we use the default values for `float`, `pm` and `pow` and wouldn't actually need to include them in the function. However, we encourage you to be aware of their use in cases it is necessary to adjust them in your own code.
 
 ```{r timestep_example_behaviour1}
 
 #Generate association data
 int_info<-interaction_generation_simul(indiv_data=indiv_data,pop_mat=pop_mat,
                                        mean_group_size=2,n_ts=20,
-                                       float=0.000000001,par=50,pow=4)
+                                       float=0.000000001,pm=50,pow=4)
 gbi<-int_info[[1]]
 samp_wind<-int_info[[2]]
 
@@ -259,8 +259,7 @@ for(ds in 1:dem_steps){
   
   #Sample over some behaviour only time steps
   int_info<-interaction_generation_simul(indiv_data=indiv_data,pop_mat=pop_mat,
-                                         mean_group_size=2,n_ts=beh_steps,
-                                         float=0.000000001,par=50,pow=4)
+                                         mean_group_size=2,n_ts=beh_steps,float=0.000000001,pm=50,pow=4)
   gbi<-int_info[[1]]
   samp_wind<-int_info[[2]]
   

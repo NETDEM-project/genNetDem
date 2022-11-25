@@ -1,2 +1,0 @@
-"0","plot(indiv_data$survival~indiv_info[[1]]$size,ylab=""Survival Prob"",xlab=""Size"",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor(""black"",0.5))"
-"0",""

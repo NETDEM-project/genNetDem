@@ -1,9 +1,0 @@
-net_info<-network_generation_covariates(indiv_data,dist_mat,indiv_info,
-                                        p_ig=0.2,wi_m=0.25,wi_v=0.025,
-                                        p_og=0.05,wo_m=0.05,wo_v=0.1,
-                                        d_effp=8,d_effw=8,
-                                        covs=c(2,3),effs=effs,
-                                        plot=TRUE)
-net_info
-
-sum(is.na(net_info[[1]]))

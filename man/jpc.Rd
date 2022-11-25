@@ -4,12 +4,12 @@
 \alias{jpc}
 \title{jpc}
 \usage{
-jpc(group, par, float)
+jpc(group, pm, float)
 }
 \arguments{
 \item{group}{column of matrix (see use)}
 
-\item{par}{used to adjust social network connection strengths to probabilities of being sampled in the same group.}
+\item{pm}{used to adjust social network connection strengths to probabilities of being sampled in the same group.}
 
 \item{float}{used to provide a minimum probability of being sampled in the same group to allow all groups to be filled.}
 }
