@@ -1,0 +1,26 @@
+{
+    "id": "DAB84353",
+    "path": "~/GitHub/NETDEM/genNetDem/R/network_generation_covariates.R",
+    "project_path": "R/network_generation_covariates.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1656058942877.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "144,0",
+        "scrollLine": "116"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1656059779,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1656059779772,
+    "read_only": false,
+    "read_only_alternatives": []
+}

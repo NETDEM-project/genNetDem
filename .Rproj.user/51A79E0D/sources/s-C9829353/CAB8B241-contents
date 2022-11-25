@@ -1,0 +1,67 @@
+
+x<-seq(0,1,0.001)
+y<-0.8/(1+exp(-10*(x-0.5)))
+
+plot(x,y,ylim=c(0,1),type="l",lwd=3)
+
+x_con<-c(0.25,0.25,0.25)
+
+
+1-(1-(0.8/(1+exp(-10*(x_con[1]-0.5)))))^3
+
+1-(1-(0.8/(1+exp(-10*(3*x_con[1]-0.5)))))
+
+
+
+
+x<-seq(0,1,0.001)
+y<-1/(1+exp(-10*(x-0.5)))
+
+
+
+par(mfrow=c(1,2))
+par(mar=c(6,6,12,2))
+plot(x,y,ylim=c(0,1),type="l",lwd=3,las=1,ylab="",xlab="",cex.lab=1.75,cex.axis=1.5)
+mtext(side=2,line=4,"P(Infection) per Individual",cex=2)
+mtext(side=1,line=4,"Infectious Dose (r)",cex=2)
+mtext(side=1,line=-3,col="black",expression(bold(paste("P(Infection) = ",sigma,"(r))"))),adj=0.9,font=2,cex=2)
+
+
+par(xpd=NA)
+lines(x=c(0.1,0.2),y=c(1.25,1.35),col="gray20",lwd=3)
+lines(x=c(0.1,0.25),y=c(1.25,1.25),col="gray20",lwd=3)
+lines(x=c(0.1,0.2),y=c(1.25,1.15),col="gray20",lwd=3)
+lines(x=c(0.2,0.2),y=c(1.35,1.15),col="gray20",lwd=3)
+lines(x=c(0.2,0.25),y=c(1.35,1.25),col="gray20",lwd=3)
+lines(x=c(0.2,0.25),y=c(1.15,1.25),col="gray20",lwd=3)
+
+points(x=0.1,y=1.25,col="lightslateblue",pch=16,cex=5)
+points(x=c(0.2,0.25,0.2),y=c(1.35,1.25,1.15),col="red3",pch=16,cex=5)
+polygon(x=c(0.675,0.8,0.875,0.8),y=c(1.25,1.375,1.25,1.125),col=adjustcolor("lightsteelblue1",0.75),border=NA)
+points(x=0.7,y=1.25,col="lightslateblue",pch=16,cex=5)
+points(x=c(0.8,0.85,0.8),y=c(1.35,1.25,1.15),col="red3",pch=16,cex=5)
+mtext(side=3,line=8.5,at=0.2,"Network Representation",cex=1.25,font=2,col="navy")
+mtext(side=3,line=8.5,at=0.8,"Simplicial Set Representation",cex=1.25,font=2,col="firebrick")
+par(xpd=FALSE)
+
+
+
+x_con<-seq(0,1,0.00001)
+
+net_probs<- 1-(1-(1/(1+exp(-10*(x_con-0.5)))))^3
+set_probs<- 1-(1-(1/(1+exp(-10*(3*x_con-0.5)))))
+
+par(mar=c(6,6,2,2))
+plot(x_con,set_probs,type="l",lwd=4,col="firebrick",cex.axis=1.5,cex.lab=2,las=1,xlab="",ylab="")
+lines(x_con,net_probs,lwd=4,col="navy")
+mtext(side=2,line=4,"Overall P(Infection)",cex=2)
+mtext(side=1,line=4,"Infectious Dose (r)",cex=2)
+
+library(pracma)
+cross<-bisect(function(x) (1-(1-(1/(1+exp(-10*(x-0.5)))))^3)-(1-(1-(1/(1+exp(-10*(3*x-0.5)))))), 0, 1)$root
+polygon(x=c(x_con[x_con>cross],rev(x_con[x_con>cross])),y=c(net_probs[x_con>cross],rev(set_probs[x_con>cross])),col=adjustcolor("firebrick",0.5),border=NA)
+polygon(x=c(x_con[x_con<cross],rev(x_con[x_con<cross])),y=c(net_probs[x_con<cross],rev(set_probs[x_con<cross])),col=adjustcolor("navy",0.5),border=NA)
+
+mtext(side=1,line=-3,col="navy",expression(bold(paste("P(Infection) = 1-(1-",sigma,"(r))")^3)),adj=0.9,font=2,cex=2)
+mtext(side=1,line=-6,col="firebrick",expression(bold(paste("P(Infection) = ",sigma,"(3r)"))),adj=0.9,font=2,cex=2)
+

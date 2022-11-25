@@ -1,0 +1,1 @@
+"0","plot(indiv_data$survival~tnet::betweenness_w(tnet::as.tnet(network))[,1],ylab=""Survival Prob"",xlab=""Betweenness"",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor(""black"",0.5))"

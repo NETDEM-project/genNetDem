@@ -1,0 +1,381 @@
+---
+title: "usinggenNetDem"
+author: "Matthew Silk"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{usinggenNetDem}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment="#>",
+  fig.align="center",
+  fig.width=8,
+  fig.height=6)
+```
+
+### Here we provide an overview of how to use the genNetDem package to generate integrated social network capture-recapture datasets. We give examples of how to use the different functions provided and how they can be integrated into effective workflows
+
+***
+
+First we load the package
+
+```{r load_packages, message=FALSE,warning=FALSE}
+
+library(genNetDem)
+library(asnipe)
+
+```
+
+***
+
+The first task is to generate basic data about the population. We do this using `n` the number of individuals and `ng` the number of groups they are arranged in. In the following code we create a population of `n` = 100 individuals that do not live in groups `ng=n`. We then store information on their ID, group membership (equivalent to ID in this case) and spatial location in an indiv_data dataframe and the distance matrix for every individual in the population as the object dist_mat.
+
+The plot shows the spatial location of individuals in the population. We also show the population information generated.
+
+```{r population_generation}
+
+#Generate population
+pop_info<-population_generation_basic(n=100,ng=100)
+indiv_data<-pop_info[[1]]
+dist_mat<-pop_info[[2]]
+
+#individual data
+head(indiv_data)
+
+#distance matrix
+dist_mat[1:5,1:5]
+
+```
+
+We then generate trait data for the population for two traits (sex and size) using `indiv_info_gen()`.
+
+Here we show how the indiv_info object is organised as a dataframe and a series of lists providing information about the traits.
+
+```{r individual_traits}
+
+indiv_info<-data.frame(indiv_data$indivs)
+indiv_info<-indiv_info_gen(indiv_info,ii_tag=NULL,indiv_data=indiv_data,trait="sex",trait_type="fac",level_names=c("M","F"))
+indiv_info<-indiv_info_gen(indiv_info[[1]],ii_tag=indiv_info[[2]],indiv_data,trait="size",trait_type="cov",x_dist="norm")
+
+#trait data
+head(indiv_info[[1]])
+#tag for first trait
+indiv_info[[2]][[1]]
+
+```
+
+***
+
+Next we generate the underlying social network that represent the social relationships of all individuals in the population. genNetDem provides two options to do this: `network_generation_basic()` and `network_generation_covariates()`.
+
+Both of these approaches generated weighted (edge weights between 0 and 1), undirected networks using a [block-model](https://en.wikipedia.org/wiki/Stochastic_block_model) type approach, in which the probability and weight of connections depends on membership in the generated groups. In general, in-group connections would be coded to be more likely and stronger than out-group connections but this isn't a requirement. Out-group connections also depend on the location of groups (or individuals) in 2D space. The steepness of the exponential decay in edge probability is controlled by `d_effp` and edge weights is controlled by `d_effw`. `network_generation_covariates()` provides additional functionality for other node traits to influence the position of an individual within the network.
+
+Note that we use the network generated with `network_generation_covariates()` in subsequent code chunks. It requires effect sizes which we provide in the list `effs`. The `effs`list indicates that the second level of the factor sex (males cf. males) has higher values for the parameters `p_og`, `wo_m` and `wo_v` (effect size of 1), and that size has a negative relationship with parameter values `d_effp` and `d_effw` (effect size of 0.5).
+
+We store the adjacency matrix as the object `pop_mat` and the igraph network as `pop_net`.
+
+```{r network_generation}
+
+net_info<-network_generation_basic(indiv_data=indiv_data,dist_mat=dist_mat,
+                                   p_ig=0.2,w_ig1=1.5,w_ig2=5,
+                                   p_og=0.2,w_og1=1,w_og2=5,
+                                   d_effp=4,d_effw=4,
+                                   plot=TRUE)
+
+effs<-list()
+effs[[1]]<-matrix(c(0,0,0,1,1,1,0,0),nr=1,nc=8)
+effs[[1]]<-rbind(rep(0,8),effs[[1]])
+effs[[2]]<-matrix(c(0,0,0,0,0,0,-0.5,-0.5),nr=1,nc=8)
+
+net_info<-network_generation_covariates(indiv_data,dist_mat,indiv_info,
+                              p_ig=0.2,wi_m=0.25,wi_v=0.025,
+                              p_og=0.2,wo_m=0.25,wo_v=0.025,
+                              d_effp=4,d_effw=4,
+                              covs=c(2,3),effs=effs,
+                              plot=TRUE)
+
+pop_mat<-net_info[[1]]
+pop_net<-net_info[[2]]
+
+```
+
+***
+
+We can check that the simulated social network has the properties we wanted. For example, by generating a box plot showing how strength depends on sex.
+
+```{r netcheck_plot1, echo=FALSE}
+
+boxplot(igraph::strength(pop_net)~indiv_info[[1]][,2],xlab="Sex",ylab="Strength",las=1)
+
+
+```
+
+We simulated males to be more likely to have social connections than females and have stronger social connections, resulting in them having higher strength (weighted degree centrality) which is a sum of their total edge weights.
+
+***
+
+We can then show how we can generate and sample social data over a single timestep.
+
+We first use the `interaction_generation_simul()` function to generate social data based on our underlying network. We choose a mean group size of 2 so that grouping events are small (many dyadic). and so so for 20 "behavioural" time-steps. We will expand on a behavioural time-step later in the code. We store the group-by-individual matrix as `gbi` and information on when groups were observed as `samp_wind`.
+
+Note that here we use the default values for `float`, `par` and `pow` and wouldn't actually need to include them in the function. However, we encourage you to be aware of their use in cases it is necessary to adjust them in your own code.
+
+```{r timestep_example_behaviour1}
+
+#Generate association data
+int_info<-interaction_generation_simul(indiv_data=indiv_data,pop_mat=pop_mat,
+                                       mean_group_size=2,n_ts=20,
+                                       float=0.000000001,par=50,pow=4)
+gbi<-int_info[[1]]
+samp_wind<-int_info[[2]]
+
+```
+
+
+We can then check how well networks based on the interaction data match the underlying network using the `network_checker_simul()` function. The functions for sequential groups work in a very similar way to these but are less useful as it is more appropriate to generate social data for all individuals at the same time.
+
+This function first plots the social network generated from the group-by-individual matrix of simulated interactions.
+
+It then uses [`sna::netlm`](https://www.rdocumentation.org/packages/sna/versions/2.6/topics/netlm) to test the association between the underlying network and interaction network. This provides regression coefficients for the matrix (network) regression between the two social networks. It also provides an R-squared value for the relationship which we would like to be fairly high to show that the interaction data reflects the underlying network.
+
+Finally, it provides plots of the correlation between four key centrality measures (degree, strength, betweenness and closeness) in the underlying and interaction networks. If the function has run successfully we would like to see positive correlations here.
+
+
+```{r timestep_example_behaviour2}
+
+#Check networks produced
+network_checker_simul(gbi=gbi,pop_net=pop_net)
+
+```
+
+We then simulate the observation process for our data using the `cap_and_obs()` function. We set there to be a 0.75 chance of capturing/observing each group during a sampled behavioural timestep and 0.9 chance of capturing (`pci`) or observing (`pmi`) in a successfully sampled group. Captures only occur in the first 4 behavioural timesteps and observations occur every second timestep. N.B. Observations will only occur in timesteps without captures.
+
+```{r timestep_example_behaviour3}
+
+#Observe networks over these timesteps
+obs_info<-cap_and_obs(samp_wind=samp_wind,gbi=gbi,
+                      pcg=0.75,pmi=0.9,pci=0.9,
+                      start_obs=1,end_obs=max(samp_wind),interval_obs=2,
+                      start_cap=1,end_cap=4,interval_cap=1)
+
+captured_gbi<-obs_info[[1]]
+captured_groups<-obs_info[[2]]
+observed_gbi<-obs_info[[3]]
+observed_groups<-obs_info[[4]]
+
+```
+
+We can then store information on the captured and observed groups and group-by-individual matrices. 
+
+At this point we can use the `obs_net_checker()` function to compare the observed network to the true social networks for the population.
+
+This function first plots the obsereved social network.
+
+It then uses [`sna::netlm`](https://www.rdocumentation.org/packages/sna/versions/2.6/topics/netlm) to test the association between the observed network and a) the true interaction network and b) the underlying social network.
+
+Finally, it provides plots of the correlation between four key centrality measures (degree, strength, betweenness and closeness) in the observed network and true interaction networks.
+
+
+```{r timestep_example_behaviour4}
+
+obs_net_checker(observed_gbi,asnipe::get_network(gbi),pop_mat)
+
+```
+
+***
+
+`geNetDem` can also simulate demographic processes at each time-step. In this section of code we demonstrate the two options for generating survival probabilities for individuals and then how these are implemented in the `timestep_demographics()` function.
+
+Once we have run this function we need to store information on the previous, current and overall individual datasets and store the new distance matrix for all individuals in the population.
+
+The next step is to add trait data for newly recruited individuals using the `indiv_info_add()`function.
+
+Finally we use the `network_rewire_covariates()` function to update the social network of the population. As well as adding new individuals this function offers the capability to either completely change the social connections of existing individuals or keep them the same. As when we first simulated the network we can store the adjacency matrix and igraph network object separately. We set `plot=TRUE` so that we can visualise the new network.
+
+```{r timestep_example_demography}
+
+#Add survival to initial population
+indiv_data<-basic_survival(indiv_data,mps=0.95,lvps=0.5)
+
+#Demographic timestep
+new_info<-timestep_demographics(indiv_data=indiv_data,full_indiv_data=indiv_data,
+                                mps=0.95,lvps=0.5)
+
+prev_data<-indiv_data
+indiv_data<-new_info[[1]]
+full_indiv_data<-new_info[[2]]
+dist_mat<-new_info[[3]]
+
+indiv_info<-indiv_info_add(indiv_info[[1]],ii_tag=indiv_info[[2]],indiv_data=indiv_data)
+
+net_info<-network_rewire_covariates(network=pop_mat,
+                          indiv_data=indiv_data,prev_data=prev_data,dist_mat=dist_mat,indiv_info=indiv_info,
+                          p_ig=0.2,wi_m=0.25,wi_v=0.025,
+                          p_og=0.2,wo_m=0.25,wo_v=0.025,
+                          d_effp=4,d_effw=4,
+                          covs=2,effs,
+                          p_wr_i=0,p_wr_e=0.5,
+                          plot=TRUE)
+
+pop_mat<-net_info[[1]]
+pop_net<-net_info[[2]]
+
+```
+
+***
+***
+
+We are now able to put all of these functions together into a single workflow. We simulate a series of 10 demographic timesteps (points at which survival/recruitment are simulated) with each of these demographic timesteps containing a fixed number of behavioural timesteps over which grouping events are simulated. In the example here we have 20 behavioural timesteps per demographic timestep.
+
+We use the lists `CG`, `OG`, `SW_store` and `inds_alive` to store the data generated at each demographic timestep. We use `pre_cap` to keep track of the individuals already captured in the study. This information can then be fed to the `cap_and_obs` function so that these individuals are observable even if not captured within that demographic timestep.
+
+Otherwise there are minimal changes from the previous code.
+
+The code generates a plot of the social network after each demographic timestep.
+
+```{r full_example_worflow,warning=FALSE}
+
+#Behavioural timesteps
+beh_steps<-20
+#Demographic timesteps
+dem_steps<-10
+
+CG<-list()
+OG<-list()
+
+SW_store<-list()
+
+inds_alive<-list()
+pre_cap<-NULL
+
+for(ds in 1:dem_steps){
+  
+  inds_alive[[ds]]<-indiv_data$indivs
+  
+  #Sample over some behaviour only time steps
+  int_info<-interaction_generation_simul(indiv_data=indiv_data,pop_mat=pop_mat,
+                                         mean_group_size=2,n_ts=beh_steps,
+                                         float=0.000000001,par=50,pow=4)
+  gbi<-int_info[[1]]
+  samp_wind<-int_info[[2]]
+  
+  if(ds>1){
+    if(ds==2){
+      pre_cap_t<-sign(pre_cap[!is.na(pre_cap[,ds]),ds])
+    }
+    if(ds>2){
+      pre_cap_t<-sign(rowSums(pre_cap[!is.na(pre_cap[,ds]),2:ds],na.rm=TRUE))
+    }
+    pre_cap_t<-pre_cap_t[names(pre_cap_t)%in%indiv_data$indivs]
+    pre_cap_t2<-c(pre_cap_t,rep(0,sum(indiv_data$indivs%in%names(pre_cap_t)==FALSE)))
+  }
+  
+  #Observe networks over these timesteps
+  if(ds==1){
+    obs_info<-cap_and_obs(samp_wind=samp_wind,gbi=gbi,
+                          pcg=0.5,pmi=0.75,pci=0.75,
+                          start_obs=1,end_obs=max(samp_wind),interval_obs=2,
+                          start_cap=1,end_cap=4,interval_cap=1,
+                          pre_cap=NULL)
+  }
+  if(ds>1){
+    obs_info<-cap_and_obs(samp_wind=samp_wind,gbi=gbi,
+                          pcg=0.5,pmi=0.75,pci=0.75,
+                          start_obs=1,end_obs=max(samp_wind),interval_obs=2,
+                          start_cap=1,end_cap=4,interval_cap=1,
+                          pre_cap=pre_cap_t2)
+  }
+  
+  captured_gbi<-obs_info[[1]]
+  captured_groups<-obs_info[[2]]
+  observed_gbi<-obs_info[[3]]
+  observed_groups<-obs_info[[4]]
+  
+  if(ds==1){
+    pre_cap<-data.frame(indiv_data$indivs,sign(colSums(captured_gbi)))
+    names(pre_cap)<-c("ID","cap")
+  }
+  if(ds>1){
+    pre_cap_t<-data.frame(indiv_data$indivs,sign(colSums(captured_gbi)))
+    names(pre_cap_t)<-c("ID","cap")
+    pre_cap<-merge(pre_cap,pre_cap_t,by="ID",all.x=TRUE,all.y=TRUE)
+  }
+  
+  CG[[ds]]<-captured_gbi
+  OG[[ds]]<-observed_gbi
+  
+  SW_store[[ds]]<-samp_wind
+  
+  indiv_data<-basic_survival(indiv_data,mps=0.95,lvps=0.5)
+  
+  #Demographic timestep
+  if(ds==1){
+    new_info<-timestep_demographics(indiv_data=indiv_data,full_indiv_data=indiv_data,
+                                    mps=mean(indiv_data$survival),lvps=0.5)
+  }
+  if(ds>1){
+    new_info<-timestep_demographics(indiv_data=indiv_data,full_indiv_data=full_indiv_data,
+                                    mps=mean(indiv_data$survival),lvps=0.5)
+  }
+  
+  prev_data<-indiv_data
+  indiv_data<-new_info[[1]]
+  full_indiv_data<-new_info[[2]]
+  dist_mat<-new_info[[3]]
+  
+  indiv_info<-indiv_info_add(indiv_info[[1]],ii_tag=indiv_info[[2]],indiv_data=indiv_data)
+  
+  net_info<-network_rewire_covariates(network=pop_mat,
+                                      indiv_data=indiv_data,prev_data=prev_data,dist_mat=dist_mat,indiv_info=indiv_info,
+                                      p_ig=0.2,wi_m=0.25,wi_v=0.025,
+                                      p_og=0.2,wo_m=0.25,wo_v=0.025,
+                                      d_effp=4,d_effw=4,
+                                      covs=2,effs,
+                                      p_wr_i=0,p_wr_e=0.5,
+                                      plot=TRUE)
+  
+  pop_mat<-net_info[[1]]
+  pop_net<-net_info[[2]]
+  
+}
+
+```
+
+***
+
+Once we have generated our full dataset we can summarise it in various forms. A key tool here is the `cap_dat_gen()` function which can be used to generate conventional capture_recapture datasets from genNetDem outputs.
+
+```{r handling_outputs}
+
+#inspect which individuals are alive at timestep 4.
+inds_alive[[4]]
+
+#generate conventional capture-recapture dataset
+capture_data<-cap_dat_gen(CG=OG,SW_store=SW_store,full_indiv_data=full_indiv_data,inds_alive=inds_alive,bs=beh_steps)
+
+#Reminder of capture/observation steps and then vector of which timesteps were sampled.
+start_obs=1
+end_obs=max(samp_wind)
+interval_obs=2
+start_cap=1
+end_cap=4
+interval_cap=1
+which_keep<-unique(sort(c(seq(start_obs,end_obs,interval_obs),seq(start_cap,end_cap,interval_cap))))
+keep_winds<-rep(0,beh_steps)
+keep_winds[which_keep]<-1
+#Add a 1 at the start to keep the IDs
+keep_winds2<-c(1,rep(keep_winds,dem_steps))
+
+#Remove capture data for all behavioural timesteps where captures were not attempted
+att_caps<-capture_data[[2]]
+att_caps<-att_caps[,keep_winds2==1]
+
+#Show behavioural timestep capture data
+print(att_caps[1:5,1:25])
+
+```

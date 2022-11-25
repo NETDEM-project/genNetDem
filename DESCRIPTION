@@ -1,0 +1,16 @@
+Package: genNetDem
+Type: Package
+Title: Simulation of combined social network and capture-recapture datasets
+Version: 0.1.0
+Author: Matthew Silk, Olivier Gimenez
+Maintainer: Matthew Silk <matthewsilk@outlook.com>
+Description: Gen-NetDem is an R package to generate longitudinal social network and/or capture-recapture datasets with known underlying properties. The functions provided can be split into four broad groups: a) population features; b) survival features; c) social network features; and d) observation features. The package is designed to be modular so that specific components can be used in isolation or user-generated code can be easily integrated to extend its functionality to different ecological or social contexts. Population features: the population features provide capability to simulate a population and generate data about individuals in it. There is then functionality that simulates the dynamics of the population based on individual survival probabilities (see survival features) and stochastic recruitment that is set-up to maintain an approximately stable population size when employed. Survival features: the survival features provide capability to calculate individual survival probabilities based on social network position (both effects of social network measures and network covariance), social group membership and individual traits. Network features: the network features provide extensive capabilities in generating various forms of social data for a simulated population. It is possible to generate an underlying social network describing the social relationships between individuals in the population based on the spatial location of individuals, their group membership and individual traits. There is also functionality to update this network as individuals die or are recruited to the population, with flexibility in altering existing social relationships. There are then additional functions that generate social data based on these underlying social relationships, separating the population into distinct grouping events whose membership is based on relationship strength in the underlying network. Finally, functionality is provided to check how similar social networks generated from these grouping events are to the underlying network they are based on. Observation features: the observation features are used to sample the simulated grouping events and generate data for use in subsequent analyses. Data can be generated in a variety of formats including group-by-individual matrices for social network analysis and classic capture-recapture formats indicating whether an individual was captured/observed within each of a series of time windows.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Imports: MASS, Matrix, boot, car, igraph, nleqslv, sna, tnet, asnipe
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

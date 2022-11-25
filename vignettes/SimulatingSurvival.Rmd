@@ -1,0 +1,221 @@
+---
+title: "How to use covariates_survival()"
+author: "Matthew Silk"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SimulatingSurvival}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align="center",
+  fig.width=8,
+  fig.height=6)
+```
+
+### Here we provide an overview of how to use the `covariates_survival()` function to flexibly simulate survival probabilities that depend on extrinsic and network traits.
+
+***
+
+First we load the package
+
+```{r load_packages, message=FALSE,warning=FALSE}
+
+library(genNetDem)
+library(asnipe)
+library(tnet)
+
+```
+
+***
+
+#### Second we set up our population and network.
+
+We generate a population of 100 individuals without underlying group structure.
+
+```{r pop_gen, message=FALSE,warning=FALSE}
+
+#Generate population
+pop_info<-population_generation_basic(n=100,ng=100)
+indiv_data<-pop_info[[1]]
+dist_mat<-pop_info[[2]]
+
+```
+
+We simulate the traits sex and size.
+
+```{r trait_gen, message=FALSE,warning=FALSE}
+
+indiv_info<-data.frame(indiv_data$indivs)
+indiv_info<-indiv_info_gen(indiv_info,ii_tag=NULL,indiv_data=indiv_data,trait="sex",trait_type="fac",level_names=c("M","F"))
+indiv_info<-indiv_info_gen(indiv_info[[1]],ii_tag=indiv_info[[2]],indiv_data,trait="size",trait_type="cov",x_dist="norm")
+
+```
+
+Connections in the underlying network depend on both sex and size
+
+```{r net_gen, message=FALSE,warning=FALSE}
+
+effs<-list()
+effs[[1]]<-matrix(c(0,0,0,1,1,1,0,0),nr=1,nc=8)
+effs[[1]]<-rbind(rep(0,8),effs[[1]])
+effs[[2]]<-matrix(c(0,0,0,0,0,0,-0.5,-0.5),nr=1,nc=8)
+
+net_info<-network_generation_covariates(indiv_data,dist_mat,indiv_info,
+                                        p_ig=0.2,wi_m=0.25,wi_v=0.025,
+                                        p_og=0.2,wo_m=0.25,wo_v=0.025,
+                                        d_effp=4,d_effw=4,
+                                        covs=c(2,3),effs=effs,
+                                        plot=TRUE)
+pop_mat<-net_info[[1]]
+pop_net<-net_info[[2]]
+
+```
+
+***
+
+#### Third we simulate interactions
+
+We now simulate interactions based on this network with a mean group size of 2. We simulate 20 behavioural timesteps of interaction data.
+
+```{r int_gen, message=FALSE,warning=FALSE}
+
+#Sample over some behaviour only time steps
+int_info<-interaction_generation_simul(indiv_data=indiv_data,pop_mat=pop_mat,
+                                       mean_group_size=2,n_ts=20,
+                                       float=0.000000001,par=50,pow=4)
+gbi<-int_info[[1]]
+samp_wind<-int_info[[2]]
+
+network<-asnipe::get_network(gbi)
+
+```
+
+***
+
+#### Now we show how to simulate survival with five examples
+
+**Example 1** --- survival probability is influenced by two variables: a) a small positive effect of size (+0.2); and b) a stronger negative effect of degree (-0.5). To calculate the degree we provide the function both the network measure `net_vars="degree"` and the package used to calculate it `net_packages="igraph"`. The intercept survival probability in this example and all those following is 0.95 and the residual variance on the logit scale is 0.5.
+
+When we plot the results it is difficult to see an effect of size (as might be expected given the effect size is small) but there is a strong negative effect of degree on survival as simulated.
+
+```{r surv1, message=FALSE,warning=FALSE}
+
+#Add survival to initial population
+indiv_data<-covariates_survival(indiv_data=indiv_data,indiv_info=indiv_info,network=network,
+                                group_means=NULL,
+                                ext_vars="size",ext_effs=0.2,scale_ext=FALSE,
+                                net_vars="degree",net_effs=-0.5,net_packages="igraph",
+                                net_cov=FALSE,
+                                mps=0.95,lvps=0.5)
+
+#Plots to demonstrate the function is working.
+par(mfrow=c(1,1),mar=c(5,5,2,2))
+plot(indiv_data$survival~colSums(sign(network)),ylab="Survival Prob",xlab="Degree",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor("black",0.5))
+plot(indiv_data$survival~indiv_info[[1]]$size,ylab="Survival Prob",xlab="Size",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor("black",0.5))
+
+```
+
+**Example 2** --- it is easy to change the network measures and packages we use. Here survival probability is again influenced by two variables: a) sex (males +0.2 vs. females); and b) a weak positive effect of betweenness (0.2) calculated using `tnet`.
+
+When we plot the results we see a strong difference between the sexes but only a very weak relationship between survival and betweenness.
+
+```{r surv2, message=FALSE,warning=FALSE}
+
+##A second test
+#Add survival to initial population
+indiv_data<-covariates_survival(indiv_data=indiv_data,indiv_info=indiv_info,network=network,
+                                group_means=NULL,
+                                ext_vars="sex",ext_effs=list(c(0,0.5)),scale_ext=FALSE,
+                                net_vars="betweenness_w",net_effs=list(0.2),net_packages="tnet",
+                                net_cov=FALSE,
+                                mps=0.95,lvps=0.5)
+
+#Plots to demonstrate the two types of variable are working.
+#At least in this case
+par(mfrow=c(1,1))
+boxplot(indiv_data$survival~indiv_info[[1]]$sex,ylab="Survival Prob",xlab="Sex",cex.lab=1.5,cex.axis=1.15,las=1)
+plot(indiv_data$survival~tnet::betweenness_w(tnet::as.tnet(network))[,1],ylab="Survival Prob",xlab="Betweenness",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor("black",0.5))
+
+
+```
+**Example 3** --- here we show a third combination of networks package (`sna`) and measure in action. Survival probability is again influenced by two variables: a) sex (males -0.1 vs. females); and b) a strong positive effect of closeness centrality (1.2).
+
+When we plot the results we see a strong positive effect of closeness on survival. This effect appears non-linear when plotted but remember that the linear effect of closeness is on the logit scale meaning this curve is expected at high (or low) values of survival in particular. Weirdly, we appear to see an opposite effect of sex on survival than the one we simulated. However, remember that we simulated social network structure so that it was different for males and females. Because males have more and stronger connections than females they tend to have higher values of closeness centrality, the impact of which overcomes the small negative effect of sex in its own right.
+
+```{r surv3, message=FALSE,warning=FALSE}
+
+##A third test
+#Add survival to initial population
+indiv_data<-covariates_survival(indiv_data=indiv_data,indiv_info=indiv_info,network=network,
+                                group_means=NULL,
+                                ext_vars="sex",ext_effs=list(c(0,-0.1)),scale_ext=FALSE,
+                                net_vars="closeness",net_effs=list(1.2),net_packages="sna",
+                                net_cov=FALSE,
+                                mps=0.95,lvps=0.5)
+
+#Plots to demonstrate the two types of variable are working.
+#At least in this case
+par(mfrow=c(1,1))
+plot(indiv_data$survival~sna::closeness(network),ylab="Survival Prob",xlab="Closeness",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor("black",0.5))
+boxplot(indiv_data$survival~indiv_info[[1]]$sex,ylab="Survival Prob",xlab="Sex",cex.lab=1.5,cex.axis=1.15,las=1)
+
+```
+**Example 4** --- up until now we have used raw metric values to simulate survival, bu `covariates_survival()` has the capability to use scaled versions of these measures as we do here. We also introduce network covariance here by setting `net_cov=TRUE` and then `max_cor=-0.9`. As well as this negative covariance (being closely connected to an individual with high survival negatively impacts your own survival) we simulate a strong effect of sex (males -1.0 vs. females) and a weak effect of weighted clustering coefficient (+0.25)
+
+We now generate three plots. First we show that male survival is indeed lower than female survival. We then display the weak effect of clustering coefficient on survival. Finally we show a network plot where the size of each node is scaled according to its survival probability to show the negative covariance apparent (masked somewhat by the other effects).
+
+```{r surv4, message=FALSE,warning=FALSE}
+
+##A fourth test - with covariance
+#Add survival to initial population
+indiv_data<-covariates_survival(indiv_data=indiv_data,indiv_info=indiv_info,network=network,
+                                group_means=NULL,
+                                ext_vars="sex",ext_effs=list(c(0,-1)),scale_ext=FALSE,
+                                net_vars="clustering_local_w",net_effs=list(0.25),net_packages="tnet",scale_net=TRUE,
+                                net_cov=TRUE,max_cor=-0.9,
+                                mps=0.95,lvps=0.5)
+
+#Plots to demonstrate the two types of variable are working.
+#At least in this case
+par(mfrow=c(1,1))
+boxplot(indiv_data$survival~indiv_info[[1]]$sex,ylab="Survival Prob",xlab="Sex",cex.lab=1.5,cex.axis=1.15,las=1)
+plot(indiv_data$survival~tnet::clustering_local_w(as.tnet(network))[,2],ylab="Survival Prob",xlab="Clustering coefficient",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor("black",0.5))
+v_sizes<-20+4*scale(indiv_data$survival)
+v_sizes[v_sizes<0]<-0.1
+igraph::plot.igraph(graph.adjacency(network,mode="undirected",weighted=TRUE),vertex.label=NA,vertex.size=v_sizes)
+
+```
+
+**Example 5** --- we can instead simulate positive covariance by switching to `max_cor=0.9`so that being closely connected to an individual with high survival means you are more likely to have high survival yourself. We simulate the same strong effect of sex (males -1.0 vs. females) and weak effect of weighted clustering coefficient (+0.25)
+
+We generate the same three plots. Note the difference in how the size of nearby nodes in the network compares to *Example 4*.
+
+```{r surv5, message=FALSE,warning=FALSE}
+
+##A fourth test - with covariance
+#Add survival to initial population
+indiv_data<-covariates_survival(indiv_data=indiv_data,indiv_info=indiv_info,network=network,
+                                group_means=NULL,
+                                ext_vars="sex",ext_effs=list(c(0,-1)),scale_ext=FALSE,
+                                net_vars="clustering_local_w",net_effs=list(0.25),net_packages="tnet",scale_net=TRUE,
+                                net_cov=TRUE,max_cor=0.9,
+                                mps=0.95,lvps=0.5)
+
+#Plots to demonstrate the two types of variable are working.
+#At least in this case
+par(mfrow=c(1,1))
+boxplot(indiv_data$survival~indiv_info[[1]]$sex,ylab="Survival Prob",xlab="Sex",cex.lab=1.5,cex.axis=1.15,las=1)
+plot(indiv_data$survival~tnet::clustering_local_w(as.tnet(network))[,2],ylab="Survival Prob",xlab="Clustering coefficient",cex.lab=1.5,cex.axis=1.15,las=1,pch=16,col=grDevices::adjustcolor("black",0.5))
+v_sizes<-20+4*scale(indiv_data$survival)
+v_sizes[v_sizes<0]<-0.1
+igraph::plot.igraph(graph.adjacency(network,mode="undirected",weighted=TRUE),vertex.label=NA,vertex.size=v_sizes)
+
+```
+
+

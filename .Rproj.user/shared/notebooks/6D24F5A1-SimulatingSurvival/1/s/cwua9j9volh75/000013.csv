@@ -1,0 +1,4 @@
+"0","v_sizes<-20+4*scale(indiv_data$survival)"
+"0","v_sizes[v_sizes<0]<-0.1"
+"0","igraph::plot.igraph(graph.adjacency(network,mode=""undirected"",weighted=TRUE),vertex.label=NA,vertex.size=v_sizes)"
+"0",""

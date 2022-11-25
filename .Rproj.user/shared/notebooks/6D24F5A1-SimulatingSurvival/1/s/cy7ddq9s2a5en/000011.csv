@@ -1,0 +1,2 @@
+"0","boxplot(indiv_data$survival~indiv_info[[1]]$sex,ylab=""Survival Prob"",xlab=""Sex"",cex.lab=1.5,cex.axis=1.15,las=1)"
+"0",""
