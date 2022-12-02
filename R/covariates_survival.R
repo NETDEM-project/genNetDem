@@ -39,7 +39,7 @@ covariates_survival<-function(indiv_data,indiv_info,network,
   if(isSymmetric(network)==FALSE){stop("Adjacency matrix must be symmetric")}
   if(is.list(indiv_info)==FALSE){stop("Full indiv_info object required")}
 
-  lmps<-car::logit(mps,adjust=0.001)
+  lmps<-car::logit(mps)
 
   if(net_cov==FALSE){
     t_survival<-stats::rnorm(nrow(indiv_data),lmps,lvps)

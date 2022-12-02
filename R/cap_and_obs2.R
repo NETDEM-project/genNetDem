@@ -23,11 +23,11 @@ cap_and_obs2<-function(samp_wind,gbi=gbi,
                       pre_cap=NULL){
 
   if(pcg<0|pcg>1){stop("pcg is a probability, please set accordingly")}
-  if(pmg<0|pmg>1){stop("pcg is a probability, please set accordingly")}
-  if(pci<0|pci>1){stop("pmi is a probability, please set accordingly")}
-  if(pmi<0|pmi>1){stop("pci is a probability, please set accordingly")}
+  if(pmg<0|pmg>1){stop("pmg is a probability, please set accordingly")}
+  if(pci<0|pci>1){stop("pci is a probability, please set accordingly")}
+  if(pmi<0|pmi>1){stop("pmi is a probability, please set accordingly")}
   if(is.matrix(gbi)==FALSE){stop("gbi must be a matrix")}
-  if(is.vector(samp_wind)==FALSE){stop("samp_wind must be a matrix")}
+  if(is.vector(samp_wind)==FALSE){stop("samp_wind must be a vector")}
 
   n_samp_wind<-length(unique(samp_wind))
   samp_wind_size<-table(samp_wind)

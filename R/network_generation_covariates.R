@@ -35,13 +35,15 @@ network_generation_covariates<-function(indiv_data,dist_mat,indiv_info,
   if(is.matrix(dist_mat)==FALSE){stop("Distance matrix must be in matrix format")}
   if(dim(dist_mat)[1]!=dim(dist_mat)[2]){stop("Distance matrix not square")}
   if(p_ig<0|p_ig>1){stop("p_ig must be between zero and one")}
-  if(wi_m<0|wi_m>1){stop("wi_m must bebetween zero and one")}
+  if(wi_m<0|wi_m>1){stop("wi_m must be between zero and one")}
   if(wi_v<0){stop("wi_v must be greater than zero")}
   if(wi_v>0.25){stop("wi_v must be less or equal to than 0.25")}
   if(p_og<0|p_og>1){stop("p_og must be between zero and one")}
-  if(wo_m<0|wo_m>1){stop("w_og1 must be  between zero and one")}
+  if(wo_m<0|wo_m>1){stop("wo_m must be between zero and one")}
   if(wo_v<0){stop("wo_v must be greater than zero")}
   if(wo_v>0.25){stop("wo_v must be less than or equal to 0.25")}
+  if(d_effp<0){stop("d_effp must not be less than zero")}
+  if(d_effw<0){stop("d_effw must not be less than zero")}
 
   ################
   fn_sol <- function(x) {
@@ -59,8 +61,6 @@ network_generation_covariates<-function(indiv_data,dist_mat,indiv_info,
 
   #Generate underlying network of affiliative relationships
   pop_mat<-matrix(0,nrow=n,ncol=n)
-
-  #to add: assortativity, transitivity
 
   for(i in 1:(n-1)){
     for(j in (i+1):n){

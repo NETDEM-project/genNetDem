@@ -13,7 +13,7 @@ basic_survival<-function(indiv_data,mps,lvps){
   if(mps<0|mps>1){stop("Survival probability must be between 0 and 1")}
   if(is.data.frame(indiv_data)==FALSE){stop("Correctly formatted indiv_data is required")}
   if(ncol(indiv_data)%in%c(4,5)==FALSE){stop("Correctly formatted indiv_data is required")}
-  lmps<-car::logit(mps,adjust=0.001)
+  lmps<-car::logit(mps)
   indiv_data$survival<-boot::inv.logit(stats::rnorm(nrow(indiv_data),lmps,lvps))
   return(indiv_data)
 }

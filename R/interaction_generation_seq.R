@@ -22,13 +22,13 @@ interaction_generation_seq<-function(pop_mat,indiv_data,
 
   if(is.data.frame(indiv_data)==FALSE){stop("Correctly formatted indiv_data is required")}
   if(ncol(indiv_data)%in%c(4,5)==FALSE){stop("Correctly formatted indiv_data is required")}
-  if(style_gs%in%c("rep","pois")){stop("style_gs must be either 'rep' or 'pois'")}
+  if(style_gs%in%c("rep","pois")==FALSE){stop("style_gs must be either 'rep' or 'pois'")}
   if(is.matrix(pop_mat)==FALSE){stop("Network must be in adjacency matrix format")}
   if(dim(pop_mat)[1]!=dim(pop_mat)[2]){stop("Adjacency matrix not square")}
   if(ne<1){stop("number of events must be 1 or more")}
-  if(mgs<0){stop("mean group size must be greater than zero")}
-  if(float<0){stop("float must be greater than zero")}
-  if(pm<0){stop("pm must be greater than zero")}
+  if(mgs<=0){stop("mean group size must be greater than zero")}
+  if(float<0){stop("float must be greater than or equal to zero")}
+  if(pm<=0){stop("pm must be greater than zero")}
   if(float>0.01){warning("Float value is high. Interactions unlikely to be strongly linked to underlying network")}
 
   if(style_gs=="rep"){

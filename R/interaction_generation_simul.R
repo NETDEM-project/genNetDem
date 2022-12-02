@@ -25,9 +25,9 @@ interaction_generation_simul<-function(indiv_data,pop_mat,
   if(is.matrix(pop_mat)==FALSE){stop("Network must be in adjacency matrix format")}
   if(dim(pop_mat)[1]!=dim(pop_mat)[2]){stop("Adjacency matrix not square")}
   if(n_ts<1){stop("number of timesteps must be 1 or more")}
-  if(mean_group_size<0){stop("mean group size must be greater than zero")}
-  if(float<0){stop("float must be greater than zero")}
-  if(pm<0){stop("pm must be greater than zero")}
+  if(mean_group_size<=0){stop("mean group size must be greater than zero")}
+  if(float<0){stop("float must be greater than or equal to zero")}
+  if(pm<=0){stop("pm must be greater than zero")}
   if(float>0.01){warning("Float value is high. Interactions unlikely to be strongly linked to underlying network")}
 
   grs<-group_calc(nrow(indiv_data),mean_group_size)

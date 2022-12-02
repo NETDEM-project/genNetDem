@@ -26,8 +26,8 @@ cap_and_obs<-function(samp_wind,gbi=gbi,
                       pre_cap=NULL){
 
   if(pcg<0|pcg>1){stop("pcg is a probability, please set accordingly")}
-  if(pci<0|pci>1){stop("pmi is a probability, please set accordingly")}
-  if(pmi<0|pmi>1){stop("pci is a probability, please set accordingly")}
+  if(pci<0|pci>1){stop("pci is a probability, please set accordingly")}
+  if(pmi<0|pmi>1){stop("pmi is a probability, please set accordingly")}
   if(start_obs<1|start_obs>max(samp_wind)){stop("start_obs must lie within the sampling window")}
   if(end_obs<1|end_obs>max(samp_wind)){stop("end_obs must lie within the sampling window")}
   if(start_cap<1|start_cap>max(samp_wind)){stop("start_cap must lie within the sampling window")}
@@ -35,7 +35,7 @@ cap_and_obs<-function(samp_wind,gbi=gbi,
   if(end_obs<start_obs){stop("end_obs must be after start_obs")}
   if(end_cap<start_cap){stop("end_cap must be after start_cap")}
   if(is.matrix(gbi)==FALSE){stop("gbi must be a matrix")}
-  if(is.vector(samp_wind)==FALSE){stop("samp_wind must be a matrix")}
+  if(is.vector(samp_wind)==FALSE){stop("samp_wind must be a vector")}
 
   n_samp_wind<-length(unique(samp_wind))
   samp_wind_size<-table(samp_wind)

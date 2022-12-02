@@ -4,9 +4,13 @@ Version: 0.0.0.9000
 Authors@R: c(person(given="Matthew",family="Silk",email="matthewsilk@outlook.com",role=c("aut","cre")), person(given="Olivier",family="Gimenez",email="olivier.gimenez@cefe.cnrs.fr",role=c("aut")))
 Description: genNetDem is an R package to generate longitudinal social network and/or capture-recapture datasets with known underlying properties. The functions provided can be split into four broad groups: a) population features; b) survival features; c) social network features; and d) observation features. The package is designed to be modular so that specific components can be used in isolation or user-generated code can be easily integrated to extend its functionality to different ecological or social contexts.
 Imports: MASS,Matrix,asnipe,boot,car,igraph,nleqslv,sna,tnet,viridis
-Suggests: knitr,rmarkdown
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
 VignetteBuilder: knitr
+Config/testthat/edition: 3
