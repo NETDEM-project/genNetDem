@@ -4,19 +4,23 @@
 \alias{network_checker_seq}
 \title{network_checker_seq}
 \usage{
-network_checker_seq(gbi, pop_net)
+network_checker_seq(gbi, pop_net, net_mets = NULL, net_packages = NULL)
 }
 \arguments{
 \item{gbi}{group-by-individual matrix generated from the interaction generation function}
 
 \item{pop_net}{underlying network used to generate GBI}
+
+\item{net_mets}{vector providing additional individual-level network measures that a user wishes to calculate. Defaults to NULL.}
+
+\item{net_packages}{vector providing the R packages required to calculate the measures defined in net_mets. Defaults to NULL.}
 }
 \value{
-1) a plot of the network generated from interaction data; 2) plots of number of observations in the GBI vs. metrics in the underlying network; 3) an estimate of the correlation between the two networks; 4) plots of metric correlations between the two networks
+By default the function returns four things: 1) a plot of the network generated from interaction data; 2) plots of number of observations in the GBI vs. metrics in the underlying network; 3) an estimate of the correlation between the two networks; 4) plots of metric correlations between the two networks. With additional arguments the function will also return plots and correlations (Spearman's rank) for extra network measures.
 }
 \description{
 Used to check how well sequential interaction data reflect underlying network
 }
 \details{
-This function can be used to test various properties of the social network generated from the interaction dataset to see how closely it is related to the original underlying network.
+This function can be used to test various properties of the social network generated from the interaction dataset to see how closely it is related to the original underlying network. Uses inverse edge weights to calculate betweenness and closeness in igraph.
 }

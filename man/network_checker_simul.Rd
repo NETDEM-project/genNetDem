@@ -4,15 +4,19 @@
 \alias{network_checker_simul}
 \title{network_checker_simul}
 \usage{
-network_checker_simul(gbi, pop_net)
+network_checker_simul(gbi, pop_net, net_mets = NULL, net_packages = NULL)
 }
 \arguments{
 \item{gbi}{group-by-individual matrix generated from the interaction generation function}
 
 \item{pop_net}{underlying network used to generate GBI}
+
+\item{net_mets}{vector providing additional individual-level network measures that a user wishes to calculate. Defaults to NULL.}
+
+\item{net_packages}{vector providing the R packages required to calculate the measures defined in net_mets. Defaults to NULL.}
 }
 \value{
-1) a plot of the network generated from interaction data; 2) an estimate of the correlation between the two networks; 3) plots of metric correlations between the two networks
+By default the function returns three things: 1) a plot of the network generated from interaction data; 2) an estimate of the correlation between the two networks; 3) plots of metric correlations between the two networks. With additional arguments the function will also return plots and correlations (Spearman's rank) for extra network measures.
 }
 \description{
 Used to check how well simultaneous interaction data reflect underlying network

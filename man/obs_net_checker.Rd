@@ -4,7 +4,7 @@
 \alias{obs_net_checker}
 \title{obs_net_checker}
 \usage{
-obs_net_checker(gbi_o, full_mat, pop_mat)
+obs_net_checker(gbi_o, full_mat, pop_mat, net_mets = NULL, net_packages = NULL)
 }
 \arguments{
 \item{gbi_o}{observed group-by-individual matrix}
@@ -12,9 +12,13 @@ obs_net_checker(gbi_o, full_mat, pop_mat)
 \item{full_mat}{adjacency matrix for the social network generated from grouping events}
 
 \item{pop_mat}{adjacency matrix for the underlying network}
+
+\item{net_mets}{vector providing additional individual-level network measures that a user wishes to calculate. Defaults to NULL.}
+
+\item{net_packages}{vector providing the R packages required to calculate the measures defined in net_mets. Defaults to NULL.}
 }
 \value{
-1) A plot of the observed network; 2) Correlation with the actual network; 3) Correlation with the underlying network; 4) Correlations of key centrality measures between the observed and actual network
+By default the function returns four things: 1) A plot of the observed network; 2) Correlation with the actual network; 3) Correlation with the underlying network; 4) Correlations of key centrality measures between the observed and actual network. With additional arguments the function will also return plots and correlations (Spearman's rank) for extra network measures.
 }
 \description{
 Generates observations that can be used to generate CMR data and observed social networks.
