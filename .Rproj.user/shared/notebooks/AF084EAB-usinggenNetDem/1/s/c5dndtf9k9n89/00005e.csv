@@ -1,0 +1,6 @@
+"0",""
+"0","net_info<-network_generation_basic(indiv_data=indiv_data,dist_mat=dist_mat,"
+"0","                                   p_ig=0.2,w_ig1=1.5,w_ig2=5,"
+"0","                                   p_og=0.2,w_og1=1,w_og2=5,"
+"0","                                   d_effp=4,d_effw=4,"
+"0","                                   plot=TRUE)"

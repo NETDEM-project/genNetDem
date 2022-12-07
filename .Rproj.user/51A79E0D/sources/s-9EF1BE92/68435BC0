@@ -1,0 +1,26 @@
+{
+    "id": "68435BC0",
+    "path": "C:/Users/silk/Dropbox/MSCA_Fellowship/Github_NETDEM-project/genNetDem/R/timestep_demographics.R",
+    "project_path": "R/timestep_demographics.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1670411047057.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "113,1",
+        "scrollLine": "81"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1670416894,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1670416894111,
+    "read_only": false,
+    "read_only_alternatives": []
+}

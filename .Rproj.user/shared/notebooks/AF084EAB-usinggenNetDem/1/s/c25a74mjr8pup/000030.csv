@@ -1,0 +1,2 @@
+"0",""
+"0","boxplot(igraph::strength(pop_net)~indiv_info[[1]][,2],xlab=""Sex"",ylab=""Strength"",las=1)"
